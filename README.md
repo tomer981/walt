@@ -31,6 +31,7 @@ When customers order, they must provide: Name, City, Address, Time of delivery, 
 * Each drive takes a full hour – it will start and end in a full hour (no need to calculate minutes)
 * Since distance is randomized on delivery, deliveries from same restaurant to same customer can be different in each delivery
 * If no available driver in city – provide proper error message
+* When a customer place an order, you can assume the Restaurant exist in the system, customer may or may not exist 
 
 <b>Important notes:</b>
 1. Make sure to import the project as Maven project
