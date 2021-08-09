@@ -22,7 +22,7 @@ When customers order, they must provide: Name, City, Address, Time of delivery, 
 
 3. Walt want to rank the drivers based on their total distance they did for deliveries. Please provide a detailed report to display the drivers name and the total distance of delivery order by total distance in descending order
 
-4. Provide same report as No. 3 in specific city (Bonus – not a must)
+4. Provide same report as No. 3 in specific city
 
 5. Add Junit tests to test your work
 
