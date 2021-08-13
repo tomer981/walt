@@ -16,15 +16,16 @@ The company has driver list, for each driver the system saves: Name City
 
 When customers order, they must provide: Name, City, Address, Time of delivery, Restaurant to deliver from. They can only choose restaurants in the city they live in.
 
-1. Write a service to create a delivery and assign an available driver for delivery, driver should be picked if he/she lives in the same city of the restaurant & customer, he/she has no other delivery at the same time. If more than one driver is available assign it to the least busy driver according to the driver history
+1. Write a service to create a delivery and assign an available driver for delivery, driver should be picked if he/she lives in the same city of the restaurant & customer,
+2. he/she has no other delivery at the same time. If more than one driver is available assign it to the least busy driver according to the driver history
 
-2. When assigning a delivery, save the distance from the restaurant to the customer, for this purpose the distance will be random number between 0-20 Km
+3. When assigning a delivery, save the distance from the restaurant to the customer, for this purpose the distance will be random number between 0-20 Km
 
-3. Walt want to rank the drivers based on their total distance they did for deliveries. Please provide a detailed report to display the drivers name and the total distance of delivery order by total distance in descending order
+4. Walt want to rank the drivers based on their total distance they did for deliveries. Please provide a detailed report to display the drivers name and the total distance of delivery order by total distance in descending order
 
-4. Provide same report as No. 3 in specific city
+5. Provide same report as No. 3 in specific city
 
-5. Add Junit tests to test your work
+6. Add Junit tests to test your work
 
 <b>Assumptions:</b>
 

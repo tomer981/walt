@@ -1,10 +1,7 @@
 package com.walt;
 
 import com.walt.dao.*;
-import com.walt.model.City;
-import com.walt.model.Customer;
-import com.walt.model.Driver;
-import com.walt.model.Restaurant;
+import com.walt.model.*;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +12,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.annotation.DirtiesContext;
 
 import javax.annotation.Resource;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -51,7 +51,8 @@ public class WaltTest {
     RestaurantRepository restaurantRepository;
 
     @BeforeEach()
-    public void prepareData(){
+    public void prepareData() throws Exception {
+
 
         City jerusalem = new City("Jerusalem");
         City tlv = new City("Tel-Aviv");
@@ -68,6 +69,19 @@ public class WaltTest {
         createCustomers(jerusalem, tlv, haifa);
 
         createRestaurant(jerusalem, tlv);
+
+        createDeliveries();
+
+
+        City city = cityRepository.findByName("Tel-Aviv");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH");
+        Date deliveryTime = dateFormat.parse("11/08/2021 16");
+        Customer customer = customerRepository.findByName("Beethoven");
+        Restaurant restaurant = restaurantRepository.findByName("vegan");
+
+        Delivery a = waltService.createOrderAndAssignDriver(customer,restaurant,deliveryTime);
+        List<DriverDistance> b = waltService.getDriverRankReport();
+        List<DriverDistance> c = waltService.getDriverRankReportByCity(tlv);
     }
 
     private void createRestaurant(City jerusalem, City tlv) {
@@ -104,6 +118,42 @@ public class WaltTest {
         Driver nata = new Driver("Neta", jerusalem);
 
         driverRepository.saveAll(Lists.newArrayList(mary, patricia, jennifer, james, john, robert, david, daniel, noa, ofri, nata));
+    }
+
+    private void createDeliveries() throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH");
+        City Jerusalem = cityRepository.findByName("Jerusalem");
+        City tlv = cityRepository.findByName("Tel-Aviv");
+
+        Restaurant meat = restaurantRepository.findByName("meat");//jur
+        Restaurant vegan = restaurantRepository.findByName("vegan");//tlv
+        Restaurant cafe = restaurantRepository.findByName("cafe");//tlv
+
+        Driver robert = driverRepository.findByName("Robert");//jur
+        Driver mary = driverRepository.findByName("Mary");//tlv
+        Driver patricia = driverRepository.findByName("Patricia");//tlv
+        Driver daniel = driverRepository.findByName("Daniel");//tlv
+
+        Customer mozart = customerRepository.findByName("Mozart");
+        Customer beethoven = customerRepository.findByName("Beethoven");
+        Customer rachmaninoff = customerRepository.findByName("Rachmaninoff");
+
+        Date deliveryTime = dateFormat.parse("11/08/2021 16");
+
+
+        Delivery a = new Delivery(robert,meat,mozart,deliveryTime);
+        Delivery b = new Delivery(mary,vegan,beethoven,deliveryTime);
+        Delivery c = new Delivery(patricia,vegan,beethoven,deliveryTime);
+        deliveryTime = dateFormat.parse("11/08/2021 15");
+        Delivery d = new Delivery(mary,cafe,rachmaninoff,deliveryTime);
+        Delivery e = new Delivery(daniel,cafe,rachmaninoff,deliveryTime);
+
+
+        deliveryRepository.save(a);
+        deliveryRepository.save(b);
+        deliveryRepository.save(c);
+        deliveryRepository.save(d);
+        deliveryRepository.save(e);
     }
 
     @Test
