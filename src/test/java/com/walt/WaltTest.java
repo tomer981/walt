@@ -56,7 +56,7 @@ public class WaltTest {
     RestaurantRepository restaurantRepository;
 
     @BeforeEach()
-    public void prepareData() throws Exception {
+    public void prepareData() {
 
 
         City jerusalem = new City("Jerusalem");
