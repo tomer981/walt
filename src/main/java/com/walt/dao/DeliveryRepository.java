@@ -3,6 +3,7 @@ package com.walt.dao;
 import com.walt.model.*;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -32,15 +33,18 @@ public interface DeliveryRepository extends CrudRepository<Delivery, Long> {
     @Query("select d.driver AS driver, SUM(d.distance) As distance from Delivery d WHERE d.driver.city = :city GROUP BY d.driver ORDER BY distance DESC")
     List<DriverDistance> getRankDriverDistanceByCity(@Param("city") City city);
 
-//    @Modifying
-//    @Transactional
-//    @Query(value = "INSERT INTO Delivery(driver,restaurant,customer,deliveryTime) values (:driver, :restaurant, :customer, :deliveryTime)", nativeQuery = true)
-////    @Query(value = "INSERT INTO IGNORE Delivery(driver,restaurant,customer,deliveryTime) values (:driver, :restaurant, :customer, :deliveryTime)", nativeQuery = true)
-//    int insertDelivery(
-//            @Param("driver") Driver driver,
-//            @Param("restaurant") Restaurant restaurant,
-//            @Param("customer") Customer customer,
-//            @Param("deliveryTime") Date deliveryTime);
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO Delivery(id,driver,restaurant,customer,deliveryTime,distance) values (:id,:driver, :restaurant, :customer, :deliveryTime, :distance)", nativeQuery = true)
+    int insertDelivery(
+            @Param("id") Long id,
+            @Param("driver") Driver driver,
+            @Param("restaurant") Restaurant restaurant,
+            @Param("customer") Customer customer,
+            @Param("deliveryTime") Date deliveryTime,
+            @Param("distance") Double distance);
+
+
 
     //I use d.driver because you made an interface and i think you wanted this way (i would use the first way that found in getDriverDeliveries)
     @Query("select d.driver AS driver, SUM(d.distance) AS distance from Delivery d GROUP BY d.driver ORDER BY distance DESC")

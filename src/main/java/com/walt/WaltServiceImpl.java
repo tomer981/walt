@@ -70,21 +70,23 @@ public class WaltServiceImpl implements WaltService {
         }
 
         Driver driver = driverRepository.findById(driverId).get();
+        Delivery delivery = null;
+        delivery = new Delivery(driver,restaurant,customer,deliveryTime);
+
+        deliveryRepository.insertDelivery(delivery.getId(),delivery.getDriver(),delivery.getRestaurant(),delivery.getCustomer(),delivery.getDeliveryTime(),delivery.getDistance());
 
 
-        Delivery delivery = new Delivery(driver,restaurant,customer,deliveryTime);//TODO:Temp not good
-        Delivery x = deliveryRepository.save(delivery);//TODO:Temp not good\
-        delivery.setDistance(-5);
-        Delivery y = deliveryRepository.save(delivery);//TODO:Temp not good
+//        try{
+//            delivery = new Delivery(driver,restaurant,customer,deliveryTime);
+//            delivery = new Delivery(driver,restaurant,customer,deliveryTime);
+//            deliveryRepository.insertDelivery(delivery.getId(),delivery.getDriver(),delivery.getRestaurant(),delivery.getCustomer(),delivery.getDeliveryTime(),delivery.getDistance());
+//            deliveryRepository.insertDelivery(delivery.getId(),delivery.getDriver(),delivery.getRestaurant(),delivery.getCustomer(),delivery.getDeliveryTime(),delivery.getDistance());
+//        }
+//
+//        catch(Exception e) {
+//            throw new RuntimeException("The Delivery already exist in DB");
+//        }
 
-
-
-
-//        int deliveryId = deliveryRepository.insertDelivery(driver,restaurant,customer,deliveryTime);
-
-        //TODO: pseudo Code
-        //insert if not exist
-        //else throw exception
 
 
         return delivery;

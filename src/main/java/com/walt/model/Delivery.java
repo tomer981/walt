@@ -1,7 +1,6 @@
 package com.walt.model;
 
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.SQLInsert;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -9,12 +8,11 @@ import java.util.Objects;
 import java.util.Random;
 
 @Entity
-@SQLInsert(sql = "INSERT INTO Delivery(driver, restaurant, customer,deliveryTime,distance) VALUES (?, ?, ?, ?, ?)" )
 @Table(uniqueConstraints = @UniqueConstraint(columnNames={"driver","deliveryTime"}))
 public class Delivery {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY )
     private Long id;
 
     @ManyToOne

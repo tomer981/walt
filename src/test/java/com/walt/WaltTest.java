@@ -15,7 +15,6 @@ import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -116,7 +115,6 @@ public class WaltTest {
         Driver noa = new Driver("Noa", haifa);
         Driver ofri = new Driver("Ofri", haifa);
         Driver nata = new Driver("Neta", jerusalem);
-
         driverRepository.saveAll(Lists.newArrayList(mary, patricia, jennifer, james, john, robert, david, daniel, noa, ofri, nata));
     }
 
