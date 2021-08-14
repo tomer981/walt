@@ -112,9 +112,8 @@ public class WaltTest {
     }
 
     public void createDelivery(String CustomerName,String cityName ,String deliveryTime,String restaurantName,Double distance, String driverName) throws ParseException {
-        City city = cityRepository.findByName(cityName);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH");
-        Date deliveryDate =  dateFormat.parse(deliveryTime);
+        Date deliveryDate = dateFormat.parse(deliveryTime);
         Restaurant restaurant = restaurantRepository.findByName(restaurantName);
         Customer customer = customerRepository.findByName(CustomerName);
         Driver driver = driverRepository.findByName(driverName);
@@ -136,33 +135,39 @@ public class WaltTest {
 
     @Test
     public void testNoDriverAvailableInTheCityByTime() throws RuntimeException, ParseException {
-        Delivery delivery1 = waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
-        Delivery delivery2 = waltService.PlaceOrder("Rachmaninoff","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
-        Delivery delivery3 = waltService.PlaceOrder("Bach","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
+        try{
+            waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/20021 16","cafe");//tlv
+        }
+        catch (ParseException e){
+            assert true;
+        }
+        waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
+        waltService.PlaceOrder("Rachmaninoff","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
+        waltService.PlaceOrder("Bach","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
 
         try {
             Delivery delivery4 = waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/2021 16","vegan");//tlv
             assertTrue("add Delivery when should not because no available driver at the time",false);
         }
-        catch (Exception e){
+        catch (RuntimeException e){
             assertEquals(e.getMessage(),"All drivers is occupied at the time");
         }
     }
 
     @Test
-    public void testCustomerAndRestaurantInDifferentCity(){
+    public void testCustomerAndRestaurantInDifferentCity() throws ParseException {
         try {
-            Delivery delivery1 = waltService.PlaceOrder("Mozart","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
+            waltService.PlaceOrder("Mozart","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
             assertTrue("Add delivery when should not because the restaurant and customer in difference city",false);
         }
-        catch (Exception e){
+        catch (RuntimeException e){
             assertEquals(e.getMessage(),"The Customer and the Restaurant is not in the same City");
         }
 
     }
 
     @Test
-    public void testDriverRankReport() throws Exception {
+    public void testDriverRankReport() throws ParseException {
 
         createDelivery("Beethoven","Tel-Aviv","11/08/2021 16","vegan",1.0,"Mary");
         createDelivery("Beethoven","Tel-Aviv","11/08/2021 15","vegan",20.0,"Mary");
