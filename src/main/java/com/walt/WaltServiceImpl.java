@@ -66,27 +66,21 @@ public class WaltServiceImpl implements WaltService {
         }else {//have driver with no delivery - candidates = driversByCity \ driverDelivery
             Set<Long> driverDelivery = driversIdAndNumberOfDeliveryByCity.stream().map(driver -> driver.getId()).collect(Collectors.toSet());
             driversByCity.removeIf(driver -> driverDelivery.contains(driver.getId()));
-            driverId = driverDelivery.stream().findFirst().get();
+            driverId = driversByCity.stream().findFirst().get().getId();
         }
 
         Driver driver = driverRepository.findById(driverId).get();
         Delivery delivery = null;
-        delivery = new Delivery(driver,restaurant,customer,deliveryTime);
-
-        deliveryRepository.insertDelivery(delivery.getId(),delivery.getDriver(),delivery.getRestaurant(),delivery.getCustomer(),delivery.getDeliveryTime(),delivery.getDistance());
 
 
-//        try{
-//            delivery = new Delivery(driver,restaurant,customer,deliveryTime);
-//            delivery = new Delivery(driver,restaurant,customer,deliveryTime);
-//            deliveryRepository.insertDelivery(delivery.getId(),delivery.getDriver(),delivery.getRestaurant(),delivery.getCustomer(),delivery.getDeliveryTime(),delivery.getDistance());
-//            deliveryRepository.insertDelivery(delivery.getId(),delivery.getDriver(),delivery.getRestaurant(),delivery.getCustomer(),delivery.getDeliveryTime(),delivery.getDistance());
-//        }
-//
-//        catch(Exception e) {
-//            throw new RuntimeException("The Delivery already exist in DB");
-//        }
+        try{
+            delivery = new Delivery(driver,restaurant,customer,deliveryTime);
+            delivery = deliveryRepository.save(delivery);
+        }
 
+        catch(Exception e) {
+            throw new RuntimeException("The Delivery already exist in DB");
+        }
 
 
         return delivery;
@@ -111,15 +105,18 @@ public class WaltServiceImpl implements WaltService {
         return driversRankByCity;
     }
 
-
-    public Delivery PlaceOrder(String CustomerName, String cityName, String deliveryTime,String restaurantName) throws Exception {
-        Customer customer = customerRepository.findByName(CustomerName);
+    @Override
+    public Delivery PlaceOrder(String CustomerName,String cityName,String Address ,String deliveryTime,String restaurantName) throws Exception {
         City city = cityRepository.findByName(cityName);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH");
         Date deliveryDate =  dateFormat.parse(deliveryTime);
         Restaurant restaurant = restaurantRepository.findByName(restaurantName);
 
-        return createOrderAndAssignDriver(customer,restaurant,deliveryDate);
+        Customer customer = customerRepository.findByName(CustomerName);
+        if (customer == null){
+            customer = customerRepository.save(new Customer(CustomerName,city,Address));
+        }
 
+        return createOrderAndAssignDriver(customer,restaurant,deliveryDate);
     }
 }
