@@ -3,9 +3,11 @@ package com.walt;
 import com.walt.dao.*;
 import com.walt.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,25 +48,28 @@ public class WaltServiceImpl implements WaltService {
 
 
     @Override
-    public Delivery createOrderAndAssignDriver(Customer customer, Restaurant restaurant, Date deliveryTime) throws Exception {
+    public Delivery createOrderAndAssignDriver(Customer customer, Restaurant restaurant, Date deliveryTime) throws RuntimeException {
         if (!isTheSameCity(customer,restaurant)){
-            throw new Exception("The Customer and the Restaurant is not in the same City");
+            throw new IllegalArgumentException("The Customer and the Restaurant is not in the same City");
         }
 
         Set<Driver> driversByCity = driverRepository.findAllDriversByCity(customer.getCity());
-        Set<Long> driversByCityAndTime = deliveryRepository.findDriversByCityAndTime(customer.getCity(),deliveryTime);//driverId
-        List<DriverIdDeliveryTime> driversIdAndNumberOfDeliveryByCity = deliveryRepository.getDriverDeliveries(customer.getCity());//driverId,numberOFDeliveries
+        Set<Long> driversByCityAndTime = deliveryRepository.findDriversByCityAndTime(customer.getCity(),deliveryTime);
+        List<DriverIdToNumberOfDeliveries> NumberOfDeliveryPerDriverByCity = deliveryRepository.getDriverDeliveries(customer.getCity());
         Long driverId = null;
 
-        if (driversByCity.size() == driversIdAndNumberOfDeliveryByCity.size()){ //all the drivers have delivery candidates =    driversIdAndNumberOfDeliveryByCity \  driversByCityAndTime
-            driversIdAndNumberOfDeliveryByCity.removeIf(driverIdDelivery-> driversByCityAndTime.contains(driverIdDelivery.getId()));
-            if (driversIdAndNumberOfDeliveryByCity.size() == 0){
-                throw new Exception("All drivers is occupied at the time");
+        if (driversByCity.size() == NumberOfDeliveryPerDriverByCity.size()){
+            //all the drivers in the systems have deliveries
+            NumberOfDeliveryPerDriverByCity.removeIf(d-> driversByCityAndTime.contains(d.getId()));
+            if (NumberOfDeliveryPerDriverByCity.size() == 0){
+                throw new RuntimeException("All drivers is occupied at the time");
             }
-            driverId = driversIdAndNumberOfDeliveryByCity.get(0).getId();
 
-        }else {//have driver with no delivery - candidates = driversByCity \ driverDelivery
-            Set<Long> driverDelivery = driversIdAndNumberOfDeliveryByCity.stream().map(driver -> driver.getId()).collect(Collectors.toSet());
+            driverId = NumberOfDeliveryPerDriverByCity.get(0).getId();
+        }
+        else {
+            //There is a driver without deliveries
+            Set<Long> driverDelivery = NumberOfDeliveryPerDriverByCity.stream().map(DriverIdToNumberOfDeliveries::getId).collect(Collectors.toSet());
             driversByCity.removeIf(driver -> driverDelivery.contains(driver.getId()));
             driverId = driversByCity.stream().findFirst().get().getId();
         }
@@ -78,10 +83,16 @@ public class WaltServiceImpl implements WaltService {
             delivery = deliveryRepository.save(delivery);
         }
 
-        catch(Exception e) {
-            throw new RuntimeException("The Delivery already exist in DB");
+        catch(DataIntegrityViolationException e) {
+            // issue that might happen if multiple instances of this service run at the same time.
+            Optional<Delivery> d = deliveryRepository.findDeliveryByCustomerAndRestaurantAndDeliveryTime(restaurant.getId(), customer.getId(), deliveryTime);
+            if (!d.isPresent()){
+                // the delivery doesn't exist, means the driver got assign a delivery at the same time.
+                return createOrderAndAssignDriver(customer,restaurant,deliveryTime);
+            }
+            delivery = d.get();
+            // The Order already exist - Do nothing
         }
-
 
         return delivery;
     }
@@ -106,7 +117,7 @@ public class WaltServiceImpl implements WaltService {
     }
 
     @Override
-    public Delivery PlaceOrder(String CustomerName,String cityName,String Address ,String deliveryTime,String restaurantName) throws Exception {
+    public Delivery PlaceOrder(String CustomerName,String cityName,String Address ,String deliveryTime,String restaurantName) throws RuntimeException, ParseException {
         City city = cityRepository.findByName(cityName);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH");
         Date deliveryDate =  dateFormat.parse(deliveryTime);

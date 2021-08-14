@@ -8,7 +8,9 @@ import java.util.Objects;
 import java.util.Random;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames={"driver","deliveryTime"}))
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames={"driver","deliveryTime"}),
+                            @UniqueConstraint(columnNames={"restaurant","customer","deliveryTime"})
+})
 public class Delivery {
 
     @Id

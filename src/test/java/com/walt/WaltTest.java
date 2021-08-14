@@ -126,7 +126,6 @@ public class WaltTest {
     }
 
 
-
     @Test
     public void testBasics(){
 
@@ -136,13 +135,13 @@ public class WaltTest {
     }
 
     @Test
-    public void testNoDriverAvailableInTheCityByTime() throws Exception {
-        Delivery a = waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
-        Delivery b = waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
-        Delivery c = waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
+    public void testNoDriverAvailableInTheCityByTime() throws RuntimeException, ParseException {
+        Delivery delivery1 = waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
+        Delivery delivery2 = waltService.PlaceOrder("Rachmaninoff","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
+        Delivery delivery3 = waltService.PlaceOrder("Bach","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
 
         try {
-            Delivery d = waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
+            Delivery delivery4 = waltService.PlaceOrder("Beethoven","Tel-Aviv","asd","11/08/2021 16","vegan");//tlv
             assertTrue("add Delivery when should not because no available driver at the time",false);
         }
         catch (Exception e){
@@ -150,13 +149,10 @@ public class WaltTest {
         }
     }
 
-
-
-
     @Test
     public void testCustomerAndRestaurantInDifferentCity(){
         try {
-            Delivery a = waltService.PlaceOrder("Mozart","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
+            Delivery delivery1 = waltService.PlaceOrder("Mozart","Tel-Aviv","asd","11/08/2021 16","cafe");//tlv
             assertTrue("Add delivery when should not because the restaurant and customer in difference city",false);
         }
         catch (Exception e){
@@ -165,13 +161,12 @@ public class WaltTest {
 
     }
 
-
     @Test
     public void testDriverRankReport() throws Exception {
 
         createDelivery("Beethoven","Tel-Aviv","11/08/2021 16","vegan",1.0,"Mary");
         createDelivery("Beethoven","Tel-Aviv","11/08/2021 15","vegan",20.0,"Mary");
-        createDelivery("Beethoven","Tel-Aviv","11/08/2021 16","vegan",1.0,"Patricia");
+        createDelivery("Bach","Tel-Aviv","11/08/2021 16","vegan",1.0,"Patricia");
         createDelivery("Mozart","Jerusalem","11/08/2021 16","meat",2.0,"Robert");
         List<Long> driverRankReport = waltService.getDriverRankReport().stream().map(DriverDistance::getTotalDistance).collect(Collectors.toList());
         assertTrue("Not in correct order or unable to complete",Ordering.natural().reverse().isOrdered(driverRankReport));
@@ -181,9 +176,8 @@ public class WaltTest {
     public void testDriverRankReportByCity() throws ParseException {
         createDelivery("Beethoven","Tel-Aviv","11/08/2021 16","vegan",1.0,"Mary");
         createDelivery("Beethoven","Tel-Aviv","11/08/2021 15","vegan",20.0,"Mary");
-        createDelivery("Beethoven","Tel-Aviv","11/08/2021 16","vegan",1.0,"Patricia");
+        createDelivery("Bach","Tel-Aviv","11/08/2021 16","vegan",1.0,"Patricia");
         List<Long> driverRankReportByCity = waltService.getDriverRankReportByCity(cityRepository.findByName("Tel-Aviv")).stream().map(DriverDistance::getTotalDistance).collect(Collectors.toList());
         assertTrue("Not in correct order or unable to complete",Ordering.natural().reverse().isOrdered(driverRankReportByCity));
     }
-
 }
